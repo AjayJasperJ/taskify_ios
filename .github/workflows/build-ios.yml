@@ -28,7 +28,7 @@ jobs:
 
       - name: 🏗️ Build iOS (No Code Sign)
         run: |
-          flutter build ios --release --no-codesign
+          flutter build ios --profile --no-codesign
 
       - name: 📦 Package Unsigned IPA
         run: |
