@@ -25,7 +25,6 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-
       - name: Sync CocoaPods (Force Static Linkage)
         run: |
           flutter build ios --config-only || true
@@ -58,3 +57,26 @@ jobs:
           name: trackify-ipa-unsigned
           path: build/ios/ipa/trackify-unsigned.ipa
           retention-days: 30
+
+      - name: Delete Previous GitHub Release
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch'
+        run: |
+          gh release delete ios-latest --yes --cleanup-tag 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ios-latest
+          name: "iOS Release - Unsigned IPA (Latest)"
+          body: |
+            ⚠️ **Unsigned IPA** — This build is not signed and cannot be installed directly on a device without re-signing.
+
+            To install:
+            - Use **AltStore**, **Sideloadly**, or **iOS App Installer** to sideload.
+            - Or re-sign with your own certificate using **Xcode** / **codesign**.
+          files: build/ios/ipa/trackify-unsigned.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
