@@ -34,7 +34,9 @@ jobs:
         run: |
           mkdir -p Payload
           cp -r build/ios/iphoneos/Runner.app Payload/Runner.app
-          zip -r trackify-unsigned.ipa Payload
+          # Remove any dummy code signatures so AltStore resigns frameworks properly
+          find Payload/Runner.app -name "_CodeSignature" -exec rm -rf {} +
+          zip -ry trackify-unsigned.ipa Payload
           rm -rf Payload
 
       - name: Delete Previous GitHub Release
